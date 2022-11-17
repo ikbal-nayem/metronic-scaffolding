@@ -1,0 +1,6 @@
+export const UID = 'uid'
+export const USER_ID = 'userId'
+export const USER_INFO = 'userInfo'
+export const APP_TOKEN = 'appToken'
+export const ACCESS_TOKEN = 'accessToken'
+export const REFRESH_TOKEN = 'refreshToken'
