@@ -1,17 +1,16 @@
 import {USER_AUTH} from '@constants/auth.constant'
-import {IAuthResp, IUserInfoResp} from '@interface/auth.interface'
+import {IAuthResp, IUserInfo} from '@interface/auth.interface'
 import {LocalStorageService} from '@services/utils/localStorage.service'
 import {WithChildren} from 'helpers'
 import {createContext, Dispatch, FC, SetStateAction, useContext, useEffect, useState} from 'react'
 import {isExpiredToken} from 'utility/jwt'
-import * as authHelper from '../@modules/auth/core/AuthHelpers'
+import * as authHelper from '@services/helper/auth.helper'
 
 type AuthContextProps = {
-  auth: IAuthResp | undefined
   isAuthenticated: boolean
-  saveAuth: (auth: IAuthResp | undefined, cUser: IUserInfoResp | undefined) => void
-  currentUser: IUserInfoResp | undefined
-  setCurrentUser: Dispatch<SetStateAction<IUserInfoResp | undefined>>
+  saveAuth: (auth: any, cUser: IUserInfo | undefined) => void
+  currentUser: IUserInfo | undefined
+  setCurrentUser: Dispatch<SetStateAction<IUserInfo | undefined>>
   logout: () => void
 }
 
@@ -23,10 +22,9 @@ const isValidToken = () => {
 }
 
 const initAuthContextPropsState = {
-  auth: authHelper.getAuth()?.auth,
   isAuthenticated: false,
   saveAuth: () => {},
-  currentUser: authHelper.getAuth()?.cUser,
+  currentUser: authHelper.getAuth()?.uInfo,
   setCurrentUser: () => {},
   logout: () => {},
 }
@@ -39,8 +37,7 @@ const useAuth = () => {
 
 const AuthProvider: FC<WithChildren> = ({children}) => {
   const initAuth = authHelper.getAuth()
-  const [auth, setAuth] = useState<IAuthResp | undefined>(initAuth?.auth)
-  const [currentUser, setCurrentUser] = useState<IUserInfoResp | undefined>(initAuth?.cUser)
+  const [currentUser, setCurrentUser] = useState<IUserInfo | undefined>(initAuth?.uInfo)
   const [isAuthenticated, makeAuthenticated] = useState<boolean>(isValidToken())
 
   useEffect(() => {
@@ -53,11 +50,10 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
     }, 5000)
   }, [])
 
-  const saveAuth = (auth: IAuthResp | undefined, cUser: IUserInfoResp | undefined) => {
-    setAuth(auth)
+  const saveAuth = (auth: IAuthResp | undefined, cUser: IUserInfo | undefined) => {
     setCurrentUser(cUser)
     if (auth) {
-      authHelper.setAuth(auth, cUser)
+      authHelper.setAuth('cUser')
       makeAuthenticated(true)
     } else {
       authHelper.removeAuth()
@@ -70,9 +66,7 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
   }
 
   return (
-    <AuthContext.Provider
-      value={{auth, isAuthenticated, saveAuth, currentUser, setCurrentUser, logout}}
-    >
+    <AuthContext.Provider value={{isAuthenticated, saveAuth, currentUser, setCurrentUser, logout}}>
       {children}
     </AuthContext.Provider>
   )

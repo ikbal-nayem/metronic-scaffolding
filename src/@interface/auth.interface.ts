@@ -3,7 +3,7 @@ export interface IAuthResp {
   uid?: string
 }
 
-export interface IUserInfoResp {
+export interface IUserInfo {
   userId: string
   designation: string
   roleCode: string
